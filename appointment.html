@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Appointment System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(231, 219, 231);
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        label, select, input {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .appointments {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Book Appointment</h1>
+    
+    <label for="patient-name">Patient Name:</label>
+    <input type="text" id="patient-name" placeholder="Enter your name" />
+
+    <label for="day">Select Day:</label>
+    <select id="day">
+        <option value="">-- Select Day --</option>
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+    </select>
+
+    <label for="time">Select Time Slot:</label>
+    <select id="time">
+        <option value="">-- Select Time --</option>
+    </select>
+
+    <button onclick="bookAppointment()">Book Appointment</button>
+
+    <div class="appointments">
+        <h2>Appointments:</h2>
+        <ul id="appointment-list"></ul>
+    </div>
+</div>
+
+<script>
+    // Available slots for each day
+    const availableSlots = {
+        "Monday": ["09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "03:00 PM"],
+        "Tuesday": ["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "04:00 PM"],
+        "Wednesday": ["09:00 AM", "11:00 AM", "01:00 PM", "03:00 PM"],
+        "Thursday": ["09:00 AM", "10:00 AM", "01:00 PM", "02:00 PM", "04:00 PM"],
+        "Friday": ["09:00 AM", "10:00 AM", "12:00 PM", "02:00 PM", "03:00 PM"]
+    };
+
+    // Booked appointments
+    const appointments = [];
+
+    // Populate time slots based on selected day
+    document.getElementById('day').addEventListener('change', function() {
+        const day = this.value;
+        const timeSelect = document.getElementById('time');
+        timeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+
+        if (day && availableSlots[day]) {
+            availableSlots[day].forEach(slot => {
+                const option = document.createElement('option');
+                option.value = slot;
+                option.textContent = slot;
+                timeSelect.appendChild(option);
+            });
+        }
+    });
+
+    // Book an appointment
+    function bookAppointment() {
+        const patientName = document.getElementById('patient-name').value;
+        const day = document.getElementById('day').value;
+        const time = document.getElementById('time').value;
+
+        if (!patientName || !day || !time) {
+            alert("Please fill in all the fields.");
+            return;
+        }
+
+        // Remove the booked slot from available slots
+        const index = availableSlots[day].indexOf(time);
+        if (index !== -1) {
+            availableSlots[day].splice(index, 1);
+        }
+
+        // Add to appointments list
+        appointments.push({ patient: patientName, day, time });
+
+        // Clear input fields
+        document.getElementById('patient-name').value = '';
+        document.getElementById('day').value = '';
+        document.getElementById('time').innerHTML = '<option value="">-- Select Time --</option>';
+
+        // Update the appointment list
+        updateAppointmentList();
+    }
+
+    // Update the displayed list of appointments
+    function updateAppointmentList() {
+        const appointmentList = document.getElementById('appointment-list');
+        appointmentList.innerHTML = '';
+        
+        appointments.forEach(app => {
+            const li = document.createElement('li');
+            li.textContent = `${app.patient} - ${app.day} at ${app.time}`;
+            appointmentList.appendChild(li);
+        });
+    }
+</script>
+
+</body>
+</html>
